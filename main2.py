@@ -156,7 +156,7 @@ exp1 = nt.Experiment(
     perform_validation_during_training=True,
 )
 model = torch.load(
-    "checkpoints/denoising1/checkpoint.pth.tar",
+    "checkpoints/denoising2/checkpoint.pth.tar",
     map_location="cpu",
 )
 

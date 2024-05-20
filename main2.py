@@ -188,6 +188,5 @@ async def denoise_image(file: UploadFile = File(...)):
     except Exception as e:
         return JSONResponse(status_code=400, content={"message": f"An error occurred: {str(e)}"})
 
-
 # To run the server, use the command:
 # uvicorn denoising_with_fastapi:app --reload

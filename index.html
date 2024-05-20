@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Image Denoising</title>
+    </head>
+    <body>
+        <h1>Upload an Image for Denoising</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+            <input
+                type="file"
+                id="file-input"
+                name="file"
+                accept="image/*"
+                required
+            >
+            <button type="submit">Upload and Denoise</button>
+        </form>
+        <h2>Output</h2>
+        <div id="output">
+            <img
+                id="denoised-image"
+                src=""
+                alt="Denoised Image"
+                style="display:none;"
+            >
+        </div>
+        <script>
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            const fileInput = document.getElementById('file-input');
+            formData.append('file', fileInput.files[0]);
+            const response = await fetch('/denoise/', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (response.ok) {
+                alert('Image processed successfully');
+                // Display the denoised image if your backend returns the image URL or data
+                // For example, if the backend returns the URL of the denoised image:
+                // document.getElementById('denoised-image').src = result.denoised_image_url;
+                // document.getElementById('denoised-image').style.display = 'block';
+            } else {
+                alert('Error: ' + result.message);
+            }
+        });
+        </script>
+    </body>
+</html>

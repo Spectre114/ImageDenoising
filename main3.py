@@ -1,3 +1,4 @@
+from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -125,17 +126,8 @@ def denoise_custom_image(model, custom_image):
     with torch.no_grad():
         noisy_image = custom_image_tensor
         denoised_image = model(noisy_image)
-    images = [
-        custom_image_tensor.squeeze(0),
-        denoised_image.squeeze(0),
-    ]
-    titles = ["Uploaded", "denoise"]
-    fig, axes = plt.subplots(ncols=2, figsize=(9, 5),
-                             sharex="all", sharey="all")
-    for i, img in enumerate(images):
-        myimshow(img, ax=axes[i])
-        axes[i].set_title(titles[i])
-    plt.show()
+
+    return custom_image_tensor.squeeze(0), denoised_image.squeeze(0)
 
 
 # Model setup
@@ -181,10 +173,25 @@ async def denoise_image(file: UploadFile = File(...)):
     try:
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
-        denoise_custom_image(exp1.net.to(device), image)
-        return JSONResponse(status_code=200, content={"message": "Image processed successfully"})
+        original, denoised = denoise_custom_image(exp1.net.to(device), image)
+
+        # Convert tensors to PIL Images
+        original_pil = transforms.ToPILImage()(original.cpu())
+        denoised_pil = transforms.ToPILImage()(denoised.cpu())
+
+        # Create a new image with both original and denoised side by side
+        combined = Image.new(
+            'RGB', (original_pil.width * 2, original_pil.height))
+        combined.paste(original_pil, (0, 0))
+        combined.paste(denoised_pil, (original_pil.width, 0))
+
+        # Save the combined image to a bytes buffer
+        img_byte_arr = io.BytesIO()
+        combined.save(img_byte_arr, format='PNG')
+        img_byte_arr.seek(0)
+
+        return StreamingResponse(img_byte_arr, media_type="image/png")
     except Exception as e:
         return JSONResponse(status_code=400, content={"message": f"An error occurred: {str(e)}"})
-
 # To run the server, use the command:
 # uvicorn denoising_with_fastapi:app --reload

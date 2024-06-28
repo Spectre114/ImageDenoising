@@ -4,7 +4,6 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Image Denoising</title>
-        <style></style>
     </head>
     <body>
         <h1>Image Denoising</h1>
@@ -13,18 +12,26 @@
             <button type="submit">Denoise Image</button>
         </form>
         <div id="result">
-            <h2>Result:</h2>
+            <h2>Original Image:</h2>
             <img
-                id="result-image"
+                id="original-image"
                 src=""
-                alt="Result Image"
+                alt="Original Image"
+                style="max-width: 100%;"
+            >
+            <h2>Denoised Image:</h2>
+            <img
+                id="denoised-image"
+                src=""
+                alt="Denoised Image"
                 style="max-width: 100%;"
             >
         </div>
         <script>
         const form = document.getElementById('upload-form');
         const imageInput = document.getElementById('image-input');
-        const resultImage = document.getElementById('result-image');
+        const originalImage = document.getElementById('original-image');
+        const denoisedImage = document.getElementById('denoised-image');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -40,7 +47,8 @@
                 if (response.ok) {
                     const blob = await response.blob();
                     const url = URL.createObjectURL(blob);
-                    resultImage.src = url;
+                    originalImage.src = URL.createObjectURL(imageInput.files[0]);
+                    denoisedImage.src = url;
                 } else {
                     console.error('Error:', response.statusText);
                 }

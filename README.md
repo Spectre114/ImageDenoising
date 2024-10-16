@@ -2,7 +2,7 @@
 
 2: Run the command "pip install -r requirements.txt" to install the required packages.
 
-2: In the terminal run the command "uvicorn main2:app --reload".
+2: In the terminal run the command "uvicorn main3:app --reload".
 
 3: This will run the server and you can upload a custom image and denoise.
 
